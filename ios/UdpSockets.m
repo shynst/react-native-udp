@@ -70,6 +70,22 @@ RCT_EXPORT_METHOD(bind:(nonnull NSNumber*)cId
     callback(@[[NSNull null], [client address]]);
 }
 
+RCT_EXPORT_METHOD(startReceiving:(nonnull NSNumber*)cId
+                  callback:(RCTResponseSenderBlock)callback)
+{
+    UdpSocketClient* client = [self findClient:cId callback:callback];
+    if (!client) return;
+
+    NSError *error = nil;
+    if (![client startReceiving:&error])
+    {
+        NSString *msg = error.localizedFailureReason ?: error.localizedDescription;
+        callback(@[msg ?: @"unknown error when startReceiving"]);
+        return;
+    }
+    callback(@[[NSNull null]]);
+}
+
 RCT_EXPORT_METHOD(send:(nonnull NSNumber*)cId
                   string:(NSString*)base64String
                   port:(int)port
@@ -108,9 +124,9 @@ RCT_EXPORT_METHOD(setBroadcast:(nonnull NSNumber*)cId
 RCT_EXPORT_METHOD(addMembership:(nonnull NSNumber*)cId
                   multicastAddress:(NSString *)address) {
      UdpSocketClient *client = _clients[cId];
-    
+
     if (!client) return;
-    
+
     NSError *error = nil;
     [client joinMulticastGroup:address error:&error];
 }
@@ -118,9 +134,9 @@ RCT_EXPORT_METHOD(addMembership:(nonnull NSNumber*)cId
 RCT_EXPORT_METHOD(dropMembership:(nonnull NSNumber*)cId
                   multicastAddress:(NSString *)address) {
     UdpSocketClient *client = _clients[cId];
-    
+
     if (!client) return;
-    
+
     NSError *error = nil;
     [client leaveMulticastGroup:address error:&error];
 }

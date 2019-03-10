@@ -158,6 +158,30 @@ public final class UdpSockets extends ReactContextBaseJavaModule
     }
 
     /**
+     * Start receiving thread.
+     */
+    @ReactMethod
+    public void startReceiving(final Integer cId, final Callback callback) {
+        new GuardedAsyncTask<Void, Void>(getReactApplicationContext()) {
+            @Override
+            protected void doInBackgroundGuarded(Void... params) {
+                UdpSocketClient client = findClient(cId, callback);
+                if (client == null) {
+                    return;
+                }
+
+                try {
+                    client.startReceiving();
+                    callback.invoke();
+                } catch (IllegalStateException ise) {
+                    // Socket is not bound or a problem occurred during starting thread
+                    callback.invoke(UdpErrorUtil.getError(null, ise.getMessage()));
+                }
+            }
+        }.execute();
+    }
+
+    /**
      * Joins a multi-cast group
      */
     @ReactMethod

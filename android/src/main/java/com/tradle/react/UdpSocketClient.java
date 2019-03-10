@@ -82,6 +82,17 @@ public final class UdpSocketClient implements UdpReceiverTask.OnDataReceivedList
 
         mSocket.setReuseAddress(mReuseAddress);
         mSocket.bind(socketAddress);
+    }
+
+    /**
+     * Start receiving thread.
+     *
+     * @throws IllegalStateException if socket is not bound.
+     */
+    public void startReceiving() throws IllegalStateException {
+        if (null == mSocket || !mSocket.isBound() || mReceiverTask == null) {
+            throw new IllegalStateException("Socket is not bound.");
+        }
 
         // begin listening for data in the background
         mReceiverTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,

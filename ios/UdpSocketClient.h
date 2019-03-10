@@ -67,6 +67,11 @@ typedef enum RCTUDPError RCTUDPError;
 - (BOOL)bind:(u_int16_t) port address:(NSString*)address options:(NSDictionary *)options error:(NSError**)error;
 
 /**
+ * Start receiving thread
+ */
+ - (BOOL)startReceiving:(NSError **) error;
+
+/**
  * Join multicast groupt
  *
  * @param address

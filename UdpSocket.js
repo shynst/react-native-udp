@@ -85,7 +85,7 @@ UdpSocket.prototype.bind = function(...args) {
 
   if (!port) port = 0
 
-  if (callback) this.once('listening', callback.bind(this))
+  if (callback) this.once('bound', callback.bind(this))
 
   this._state = STATE.BINDING
   this._debug('binding, address:', address, 'port:', port)
@@ -109,7 +109,23 @@ UdpSocket.prototype.bind = function(...args) {
     self._address = addr.address
     self._port = addr.port
     self._state = STATE.BOUND
-    self.emit('listening')
+    self.emit('bound')
+  })
+}
+
+UdpSocket.prototype.startReceiving = function(callback=noop) {
+  if (this._state !== STATE.BOUND) {
+    throw new Error('you must bind before startReceiving()')
+  }
+
+  this.once('listening', callback)
+
+  Sockets.startReceiving(this._id, err => {
+    err = normalizeError(err)
+    if (err) return this.emit('error', err)
+
+    this._debug('listening')
+    this.emit('listening')
   })
 }
 

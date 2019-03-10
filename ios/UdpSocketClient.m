@@ -93,13 +93,13 @@ NSString *const RCTUDPErrorDomain = @"RCTUDPErrorDomain";
   _address = address;
 
   _udpSocket = [[GCDAsyncUdpSocket alloc] initWithDelegate:self delegateQueue:[self methodQueue]];
-  
+
   [_udpSocket setMaxReceiveIPv4BufferSize:UINT16_MAX];
   [_udpSocket setMaxReceiveIPv6BufferSize:UINT16_MAX];
 
   BOOL reusePort = options[@"reusePort"] ?: NO;
   [_udpSocket enableReusePort:reusePort error:error];
-  
+
   BOOL result;
   if (address) {
     struct sockaddr_in ip;
@@ -114,7 +114,12 @@ NSString *const RCTUDPErrorDomain = @"RCTUDPErrorDomain";
     result = [_udpSocket bindToPort:_port error:error];
   }
 
-  return result && [_udpSocket beginReceiving:error];
+  return result;
+}
+
+- (BOOL)startReceiving:(NSError **) error
+{
+    return [_udpSocket beginReceiving:error];
 }
 
 - (BOOL)joinMulticastGroup:(NSString *)address error:(NSError **) error
